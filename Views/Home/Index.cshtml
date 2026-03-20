@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Dünya Haritası";
+    ViewData["FullWidth"] = true;
+}
+
+@section HeadScripts {
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+}
+
+<div id="map-container">
+    <!-- Overlay Welcome Text -->
+    <div id="welcome-overlay" class="map-welcome-overlay">
+        <h1>Keşfetmeye Hazır Mısın?</h1>
+        <p class="mb-0 text-light">Dünya üzerinde bir ülkeye tıklayarak popüler şehirleri ve mekanları gör.</p>
+    </div>
+
+    <!-- Back to World Button -->
+    <button id="back-to-world">
+        <i class="fa-solid fa-earth-americas me-2"></i>Dünyaya Dön
+    </button>
+
+    <!-- The Map -->
+    <div id="world-map"></div>
+
+    <!-- Authentication check for Route Planner -->
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Floating Action Button for Route Planner -->
+        <button id="open-route-planner-btn" class="btn btn-primary rounded-pill shadow-lg shadow" style="position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 20px; font-weight: bold;">
+            <i class="fa-solid fa-route me-2"></i> Rota Oluştur
+        </button>
+
+        <!-- Route Planner Overlay -->
+        <div id="route-planner-overlay" class="card shadow-lg" style="display: none; position: absolute; top: 70px; right: 20px; z-index: 1000; width: 350px; background: rgba(30, 41, 59, 0.95); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+            <div class="card-header border-bottom border-secondary d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="fa-solid fa-map-location-dot me-2 text-info"></i>Akıllı Rota</h5>
+                <button id="close-route-planner-btn" class="btn-close btn-close-white"></button>
+            </div>
+            <div class="card-body">
+                <form id="route-form">
+                    <div class="mb-3">
+                        <label class="form-label text-light">Şehir Seçimi (Sırasıyla)</label>
+                        <!-- For simplicity in UI, we'll use a multiple select. Realistically Select2 is better but requires CDN. We'll use a basic multiple select. -->
+                        <select id="route-cities-select" class="form-select bg-dark text-white border-secondary" multiple size="4" required>
+                            <!-- Options injected dynamically from map.js -->
+                        </select>
+                        <small class="text-muted">Birden fazla seçmek için Ctrl/Cmd basılı tutun.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-light">Maksimum Bütçe (₺)</label>
+                        <input type="number" id="route-budget" class="form-control bg-dark text-white border-secondary" placeholder="Örn: 20000" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light">Gezilecek Gün Sayısı</label>
+                        <input type="number" id="route-days" class="form-control bg-dark text-white border-secondary" placeholder="Örn: 7" value="7" min="1" required>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label text-light">Seyahat Tipi</label>
+                        <select id="route-type" class="form-select bg-dark text-white border-secondary">
+                            <option value="Düşük">Ekonomik (Sırt Çantalı)</option>
+                            <option value="Orta" selected>Standart (Orta)</option>
+                            <option value="Yüksek">Lüks (Konforlu)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-info w-100 fw-bold"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Rotayı Çiz</button>
+                </form>
+                
+                <!-- Budget Warning Message -->
+                <div id="route-budget-warning" class="alert alert-warning mt-3 mb-0" style="display: none; font-size: 0.85rem;">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Bütçeniz bu rota için biraz kısıtlı görünüyor, daha ekonomik bir seyahat tipi seçebilir veya şehirleri azaltabilirsiniz.
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Prompt to login -->
+        <div class="card shadow" style="position: absolute; top: 20px; right: 20px; z-index: 1000; width: 300px; background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(10px); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+            <div class="card-body text-center">
+                <i class="fa-solid fa-route fs-2 text-info mb-2"></i>
+                <h6>Hayalinizdeki Rotayı Çizin</h6>
+                <p class="small text-muted mb-3">Birden fazla şehri birleştirip bütçe hesaplamalı rotalar oluşturabilmek için giriş yapmalısınız.</p>
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn btn-outline-info btn-sm w-100">Giriş Yap</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="~/js/map.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,61 @@
+@model IEnumerable<GeziRehberi.Models.RoutePlan>
+
+@{
+    ViewData["Title"] = "Rotalarım";
+}
+
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark"><i class="fa-solid fa-map-location-dot me-2 text-primary"></i>Kaydedilmiş Rotalarım</h2>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>Yeni Rota Çiz</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info shadow-sm">
+            <i class="fa-solid fa-info-circle me-2"></i> Henüz kaydedilmiş bir rotanız bulunmuyor. Harita üzerinden yeni bir rota planlayabilirsiniz.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var route in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+                        <div class="card-header bg-dark text-white border-0 py-3">
+                            <h5 class="card-title mb-0 fw-bold">@route.RouteName</h5>
+                            <small class="text-light opacity-75">
+                                <i class="fa-regular fa-calendar me-1"></i> @route.StartDate.ToString("dd MMM yyyy") - @route.EndDate.ToString("dd MMM yyyy")
+                            </small>
+                        </div>
+                        <div class="card-body bg-light">
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="badge bg-info text-dark rounded-pill px-3 py-2"><i class="fa-solid fa-wallet me-1"></i> Bütçe: @route.TotalBudget.ToString("C0", new System.Globalization.CultureInfo("tr-TR"))</span>
+                                <span class="badge bg-secondary rounded-pill px-3 py-2"><i class="fa-solid fa-suitcase me-1"></i> Tip: @route.TripType</span>
+                            </div>
+
+                            <h6 class="fw-bold text-muted mb-3"><i class="fa-solid fa-route me-1"></i> Duraklar:</h6>
+                            <ul class="list-group list-group-flush rounded border mb-0">
+                                @foreach (var rc in route.RouteCities.OrderBy(r => r.Order))
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent">
+                                        <span>
+                                            <span class="badge bg-primary rounded-circle me-2">@rc.Order</span>
+                                            <a asp-controller="City" asp-action="Detail" asp-route-id="@rc.City.Id" class="text-decoration-none fw-bold text-dark">@rc.City.Name</a>
+                                        </span>
+                                        <small class="text-muted">@rc.City.Country</small>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 pb-3 pt-0">
+                            <!-- Could potentially add 'Delete' or 'View on Map' buttons here later -->
+                            <button class="btn btn-outline-secondary btn-sm w-100" disabled>Yakında Eklenecek Özellikler</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

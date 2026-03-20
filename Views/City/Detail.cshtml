@@ -1,0 +1,341 @@
+@model GeziRehberi.Models.City
+@{
+    ViewData["Title"] = Model.Name + " Gezi Rehberi";
+    ViewData["FullWidth"] = true; // Use the full width layout we created earlier
+}
+
+@section HeadScripts {
+    <style>
+        .hero-section {
+            position: relative;
+            background-image: url('@Model.ImageUrl');
+            background-size: cover;
+            background-position: center;
+            height: 60vh;
+            min-height: 400px;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(to top, rgba(15, 23, 42, 1) 0%, rgba(15, 23, 42, 0) 100%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            padding: 3rem;
+            color: #fff;
+            width: 100%;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #334155;
+            background-color: #0f172a;
+        }
+
+        .nav-tabs .nav-link {
+            color: #94a3b8;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: #f8fafc;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #38bdf8;
+            background-color: transparent;
+            border-bottom: 3px solid #38bdf8;
+        }
+
+        .tab-content {
+            padding: 3rem 0;
+            background-color: #0f172a; /* Match site width */
+            color: #e2e8f0;
+            min-height: 500px;
+        }
+
+        /* Place Cards */
+        .place-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .place-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border-color: #475569;
+        }
+
+        .place-img {
+            height: 200px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .place-body {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .place-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.5rem;
+        }
+
+        .place-type-badge {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1rem;
+        }
+
+        /* Reviews */
+        .stars {
+            color: #fbbf24;
+            font-size: 0.9rem;
+        }
+
+        .review-box {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .budget-filter.active {
+            background-color: #38bdf8;
+            color: #0f172a;
+            border-color: #38bdf8;
+        }
+    </style>
+}
+
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+        <h1 class="hero-title">@Model.Name</h1>
+        <p class="hero-subtitle"><i class="fa-solid fa-earth-europe me-2"></i>@Model.Country - @Model.Category</p>
+    </div>
+</div>
+
+<ul class="nav nav-tabs justify-content-center" id="cityTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="places-tab" data-bs-toggle="tab" data-bs-target="#places" type="button" role="tab" aria-controls="places" aria-selected="true"><i class="fa-solid fa-map-location-dot me-2"></i>Gezilecek Yerler</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="food-tab" data-bs-toggle="tab" data-bs-target="#food" type="button" role="tab" aria-controls="food" aria-selected="false"><i class="fa-solid fa-utensils me-2"></i>Ne Yenir?</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="transport-tab" data-bs-toggle="tab" data-bs-target="#transport" type="button" role="tab" aria-controls="transport" aria-selected="false"><i class="fa-solid fa-plane-departure me-2"></i>Nasıl Gidilir?</button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="weather-tab" data-bs-toggle="tab" data-bs-target="#weather" type="button" role="tab" aria-controls="weather" aria-selected="false"><i class="fa-solid fa-cloud-sun me-2"></i>Hava Durumu</button>
+    </li>
+</ul>
+
+<div class="tab-content container" id="cityTabsContent">
+    <!-- GEZİLECEK YERLER TAB -->
+    <div class="tab-pane fade show active" id="places" role="tabpanel" aria-labelledby="places-tab">
+        <div class="mb-5 text-center">
+            <h3 class="fw-bold text-white mb-3">@Model.Name Hakkında</h3>
+            <p class="text-secondary mx-auto" style="max-width: 800px; font-size: 1.1rem; line-height: 1.8;">@Model.Description</p>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h4 class="text-white fw-bold mb-3 mb-md-0">Popüler Mekanlar</h4>
+            <div class="btn-group" role="group" aria-label="Budget filter">
+                <button type="button" class="btn btn-outline-light budget-filter active" data-filter="all">Tümü</button>
+                <button type="button" class="btn btn-outline-light budget-filter" data-filter="Düşük">Düşük Bütçe</button>
+                <button type="button" class="btn btn-outline-light budget-filter" data-filter="Orta">Orta</button>
+                <button type="button" class="btn btn-outline-light budget-filter" data-filter="Yüksek">Lüks</button>
+            </div>
+        </div>
+
+        <div class="row g-4" id="places-container">
+            @foreach(var place in Model.Places)
+            {
+                var avgRating = place.Reviews.Any() ? Math.Round(place.Reviews.Average(r => r.Rating), 1) : 0;
+                var ratingCount = place.Reviews.Count;
+
+                <div class="col-md-6 col-lg-4 place-item" data-budget="@place.BudgetLevel">
+                    <div class="place-card">
+                        <img src="@place.ImageUrl" alt="@place.Name" class="place-img" />
+                        <div class="place-body">
+                            <span class="place-type-badge">@place.Type</span>
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="place-title">@place.Name</h5>
+                                <div class="text-end">
+                                    <div class="stars">
+                                        @for(int i=1; i<=5; i++)
+                                        {
+                                            if(i <= Math.Round(avgRating)) { <i class="fa-solid fa-star"></i> }
+                                            else { <i class="fa-regular fa-star"></i> }
+                                        }
+                                    </div>
+                                    <small class="text-secondary">@avgRating/5 (@ratingCount)</small>
+                                </div>
+                            </div>
+                            <p class="text-secondary mb-4" style="font-size: 0.9rem;">@place.Description</p>
+                            
+                            <div class="mt-auto">
+                                <span class="badge bg-secondary mb-3"><i class="fa-solid fa-wallet me-1"></i>Bütçe: @place.BudgetLevel</span>
+                                <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#reviewModal-@place.Id">
+                                    <i class="fa-regular fa-comment me-2"></i>Yorumlar & Puan Ver
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review Modal for Place -->
+                <div class="modal fade" id="reviewModal-@place.Id" tabindex="-1" aria-hidden="true" style="color: #212529;">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold">@place.Name Yorumları</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <h6>Kullanıcı Yorumları (@ratingCount)</h6>
+                                <div class="mb-4" style="max-height: 300px; overflow-y: auto;">
+                                    @if(place.Reviews.Any())
+                                    {
+                                        foreach(var review in place.Reviews.OrderByDescending(r => r.CreatedAt))
+                                        {
+                                            <div class="review-box text-dark" style="background: #f8f9fa; border: 1px solid #dee2e6;">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong>@review.UserName</strong>
+                                                    <span class="text-warning">
+                                                        @for(int i=0; i<review.Rating; i++) { <i class="fa-solid fa-star"></i> }
+                                                    </span>
+                                                </div>
+                                                <p class="mb-1 mt-2">@review.Comment</p>
+                                                <small class="text-muted">@review.CreatedAt.ToString("dd MMM yyyy HH:mm")</small>
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mt-2">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+                                    }
+                                </div>
+
+                                <hr />
+                                <h6 class="fw-bold mt-3">Puan Ver ve Yorum Yap</h6>
+                                <form asp-action="AddReview" asp-controller="City" method="post">
+                                    <input type="hidden" name="placeId" value="@place.Id" />
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Puanınız (1-5)</label>
+                                        <select name="rating" class="form-select" required>
+                                            <option value="5">5 - Harika</option>
+                                            <option value="4">4 - Çok İyi</option>
+                                            <option value="3">3 - İdare Eder</option>
+                                            <option value="2">2 - Kötü</option>
+                                            <option value="1">1 - Çok Kötü</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Yorumunuz</label>
+                                        <textarea name="comment" class="form-control" rows="3" required placeholder="Bu mekan hakkındaki düşünceleriniz..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-success">Gönder</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- NE YENİR TAB -->
+    <div class="tab-pane fade" id="food" role="tabpanel" aria-labelledby="food-tab">
+        <h3 class="fw-bold text-white mb-4"><i class="fa-solid fa-utensils text-primary me-2"></i>@Model.Name Lezzetleri</h3>
+        <div class="p-4 bg-dark rounded" style="border: 1px solid #334155;">
+            <p style="font-size: 1.1rem; line-height: 1.8;">@Model.WhatToEat</p>
+        </div>
+    </div>
+
+    <!-- NASIL GİDİLİR TAB -->
+    <div class="tab-pane fade" id="transport" role="tabpanel" aria-labelledby="transport-tab">
+        <h3 class="fw-bold text-white mb-4"><i class="fa-solid fa-plane text-primary me-2"></i>Ulaşım Rehberi</h3>
+        <div class="p-4 bg-dark rounded" style="border: 1px solid #334155;">
+            <p style="font-size: 1.1rem; line-height: 1.8;">@Model.HowToGetThere</p>
+        </div>
+    </div>
+
+    <!-- HAVA DURUMU TAB -->
+    <div class="tab-pane fade" id="weather" role="tabpanel" aria-labelledby="weather-tab">
+        <h3 class="fw-bold text-white mb-4"><i class="fa-solid fa-cloud-sun text-primary me-2"></i>İklim ve Hava Durumu</h3>
+        <div class="p-4 bg-dark rounded" style="border: 1px solid #334155;">
+            <p style="font-size: 1.1rem; line-height: 1.8;">@Model.WeatherSummary</p>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Budget filtering logic
+            const filterBtns = document.querySelectorAll('.budget-filter');
+            const placeItems = document.querySelectorAll('.place-item');
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active state
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    const filterValue = btn.getAttribute('data-filter');
+
+                    placeItems.forEach(item => {
+                        if (filterValue === 'all' || item.getAttribute('data-budget') === filterValue) {
+                            item.style.display = 'block';
+                            // small animation hook
+                            item.style.opacity = '0';
+                            setTimeout(() => item.style.opacity = '1', 50);
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+}

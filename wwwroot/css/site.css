@@ -1,0 +1,318 @@
+html {
+  font-size: 14px;
+  font-family: 'Poppins', sans-serif;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: #0f172a;
+  /* Dark background matching typical dark maps */
+  color: #fff;
+}
+
+/* Base focus overrides */
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+/* Navigation overrides for map page */
+header nav.navbar {
+  margin-bottom: 0 !important;
+  background: rgba(15, 23, 42, 0.8) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+header nav.navbar .navbar-brand,
+header nav.navbar .nav-link {
+  color: #f8fafc !important;
+}
+
+/* Map Container */
+#map-container {
+  width: 100%;
+  height: calc(100vh - 80px);
+  /* Fill the screen beneath the navbar! */
+  position: relative;
+  overflow: hidden;
+  background: #0f172a;
+  display: block;
+}
+
+#world-map {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+/* Welcome Overlay */
+.map-welcome-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  text-align: center;
+  pointer-events: none;
+  /* Let clicks pass through to map */
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 2rem 3rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.5s ease-out, transform 0.5s ease-out, visibility 0.5s;
+}
+
+.map-welcome-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -60%);
+}
+
+.map-welcome-overlay h1 {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #38bdf8, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Map Markers (Pulsing dots) */
+.custom-city-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-pin {
+  width: 20px;
+  height: 20px;
+  background-color: #38bdf8;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  cursor: pointer;
+  border: 2px solid #fff;
+  transition: transform 0.2s;
+}
+
+.marker-pin::after {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border: 2px solid #38bdf8;
+  border-radius: 50%;
+  animation: pulse 2s linear infinite;
+}
+
+.marker-pin:hover {
+  transform: scale(1.2);
+  background-color: #818cf8;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Glassmorphism City Layout Card */
+#city-detail-card {
+  position: absolute;
+  top: 20px;
+  right: -400px;
+  /* Hidden initially */
+  width: 350px;
+  max-width: 90vw;
+  max-height: calc(100vh - 100px);
+  z-index: 1000;
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  transition: right 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#city-detail-card.show {
+  right: 20px;
+}
+
+.card-header-glass {
+  background: rgba(15, 23, 42, 0.6);
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-header-glass h3 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.25rem;
+  color: #fff;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #fff;
+}
+
+.card-body-glass {
+  padding: 1.25rem;
+  overflow-y: auto;
+  color: #cbd5e1;
+}
+
+.city-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border-radius: 12px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+#foods-list .badge {
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.places-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.place-item {
+  background: rgba(255, 255, 255, 0.05);
+  margin-bottom: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.place-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.place-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.place-name {
+  font-weight: 500;
+  color: #f8fafc;
+}
+
+.place-rating {
+  background: #fbbf24;
+  color: #78350f;
+  border-radius: 12px;
+  padding: 0.1rem 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.place-type {
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+/* Leaflet Dark Theme Overrides */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: rgba(30, 41, 59, 0.9) !important;
+  color: #fff !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+.leaflet-popup-content {
+  margin: 10px 15px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 500;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
+/* Back button */
+#back-to-world {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  font-weight: 500;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+}
+
+#back-to-world.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#back-to-world:hover {
+  background: rgba(30, 41, 59, 0.9);
+  transform: translateY(-2px);
+}

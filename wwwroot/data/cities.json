@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "Istanbul",
+    "country": "Turkey",
+    "description": "Boğaz Köprüsü, Ayasofya ve Kapalıçarşı gibi eşsiz tarihi mekanlara ev sahipliği yapan kıtalararası bir şehir.",
+    "lat": 41.0082,
+    "lng": 28.9784,
+    "budget": "$$ Orta",
+    "foods": [
+      "İskender Kebap",
+      "Baklava",
+      "Simit",
+      "Türk Kahvesi"
+    ],
+    "places": [
+      {
+        "name": "Ayasofya",
+        "rating": 5.0,
+        "type": "Tarihi"
+      },
+      {
+        "name": "Topkapı Sarayı",
+        "rating": 4.8,
+        "type": "Müze"
+      },
+      {
+        "name": "Galata Kulesi",
+        "rating": 4.7,
+        "type": "Tarihi"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Paris",
+    "country": "France",
+    "description": "Aşıklar şehri, sanatın ve kültürün başkenti.",
+    "lat": 48.8566,
+    "lng": 2.3522,
+    "budget": "$$$ Yüksek",
+    "foods": [
+      "Kruvasan",
+      "Salyangoz (Escargot)",
+      "Makaron",
+      "Soğan Çorbası"
+    ],
+    "places": [
+      {
+        "name": "Eyfel Kulesi",
+        "rating": 4.7,
+        "type": "Anıt"
+      },
+      {
+        "name": "Louvre Müzesi",
+        "rating": 4.9,
+        "type": "Müze"
+      },
+      {
+        "name": "Notre Dame Katedrali",
+        "rating": 4.8,
+        "type": "Tarihi"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Tokyo",
+    "country": "Japan",
+    "description": "Geleneksel tapınakların modern gökdelenlerle uyum içinde olduğu teknoloji ve kültür şehri.",
+    "lat": 35.6762,
+    "lng": 139.6503,
+    "budget": "$$$ Yüksek",
+    "foods": [
+      "Sushi",
+      "Ramen",
+      "Tempura",
+      "Matcha"
+    ],
+    "places": [
+      {
+        "name": "Senso-ji Tapınağı",
+        "rating": 4.8,
+        "type": "Tapınak"
+      },
+      {
+        "name": "Tokyo Kulesi",
+        "rating": 4.6,
+        "type": "Gözlem Kulesi"
+      },
+      {
+        "name": "Meiji Tapınağı",
+        "rating": 4.8,
+        "type": "Tapınak"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "Rome",
+    "country": "Italy",
+    "description": "Antik Roma İmparatorluğu'nun kalbi, tarihi kalıntılar ve enfes mutfak.",
+    "lat": 41.9028,
+    "lng": 12.4964,
+    "budget": "$$ Orta",
+    "foods": [
+      "Pizza Margherita",
+      "Carbonara",
+      "Gelato",
+      "Tiramisu"
+    ],
+    "places": [
+      {
+        "name": "Kolezyum",
+        "rating": 4.9,
+        "type": "Tarihi"
+      },
+      {
+        "name": "Panteon",
+        "rating": 4.8,
+        "type": "Tarihi"
+      },
+      {
+        "name": "Aşk Çeşmesi",
+        "rating": 4.7,
+        "type": "Anıt"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "New York",
+    "country": "United States of America",
+    "description": "Hiç uyumayan şehir. Dünyanın en ikonik şehir merkezlerinden biri.",
+    "lat": 40.7128,
+    "lng": -74.0060,
+    "budget": "$$$ Yüksek",
+    "foods": [
+      "New York Pizza",
+      "Bagel",
+      "Cheesecake",
+      "Hot Dog"
+    ],
+    "places": [
+      {
+        "name": "Özgürlük Heykeli",
+        "rating": 4.8,
+        "type": "Anıt"
+      },
+      {
+        "name": "Central Park",
+        "rating": 4.9,
+        "type": "Doğa/Park"
+      },
+      {
+        "name": "Times Meydanı",
+        "rating": 4.7,
+        "type": "Meydan"
+      }
+    ]
+  }
+]
