@@ -1,7 +1,94 @@
-document.addEventListener("DOMContentLoaded", function () {
-    // 1) Initialize the map
-    // Centered around Europe roughly to show the whole world nicely
-    const map = L.map('world-map', {
+// ============================================================
+//  MAP.JS – Gezi Rehberi
+//  Landing ↔ Map transition + interactive world map logic
+// ============================================================
+
+// ── Global map reference (initialised lazily) ──────────────
+let map = null;
+let geojsonLayer;
+let markersLayer;
+let currentZoomedCountry = null;
+let allCities = [];
+let currentPolyline = null;
+let routeCityMarkers;
+let mapInitialised = false;
+
+// ── Çatlak Yumurta İkonu (global – initMap'ten önce tanımlanır) ──
+let crackEggIcon = null;
+
+function getCrackEggIcon() {
+    if (!crackEggIcon) {
+        crackEggIcon = L.icon({
+            iconUrl: '/images/crack-egg.png',
+            iconSize: [38, 48],   // genişlik × yükseklik (px)
+            iconAnchor: [19, 48],   // ikonun alt-ortasını koordinata sabitle
+            popupAnchor: [0, -48],
+            className: 'crack-egg-marker'
+        });
+    }
+    return crackEggIcon;
+}
+
+// ── Landing Page → Map transition ─────────────────────────
+window.activateMap = function () {
+    const hero = document.getElementById('landing-hero');
+    const mapContainer = document.getElementById('map-container');
+
+    if (!mapContainer) return;
+
+    // If hero exists and is visible, fade it out
+    if (hero && hero.style.display !== 'none') {
+        hero.classList.add('fade-out');
+    }
+
+    // 2) Show map container after brief delay
+    setTimeout(() => {
+        if (hero) hero.style.display = 'none';
+        mapContainer.style.display = 'block';
+
+        // Swap navbar style
+        document.body.classList.remove('landing-active');
+        document.body.classList.add('map-view-active');
+
+        // Fade-in map
+        requestAnimationFrame(() => {
+            mapContainer.classList.add('map-visible');
+        });
+
+        // 3) Init Leaflet only once
+        if (!mapInitialised) {
+            initMap();
+            mapInitialised = true;
+        } else {
+            // Invalidate size in case the container changed dimensions
+            map && map.invalidateSize();
+        }
+    }, hero && hero.style.display !== 'none' ? 650 : 0);
+};
+
+// ── Map → Landing Page transition ─────────────────────────
+window.deactivateMap = function () {
+    const hero = document.getElementById('landing-hero');
+    const mapContainer = document.getElementById('map-container');
+
+    if (!hero || !mapContainer) return;
+
+    // Fade out map
+    mapContainer.classList.remove('map-visible');
+
+    setTimeout(() => {
+        mapContainer.style.display = 'none';
+        hero.style.display = 'flex';
+        hero.classList.remove('fade-out');
+
+        document.body.classList.add('landing-active');
+        document.body.classList.remove('map-view-active');
+    }, 650);
+};
+
+// ── Initialise the Leaflet map ─────────────────────────────
+function initMap() {
+    map = L.map('world-map', {
         center: [30, 0],
         zoom: 2,
         minZoom: 2,
@@ -9,52 +96,39 @@ document.addEventListener("DOMContentLoaded", function () {
             [-90, -180],
             [90, 180]
         ],
-        zoomControl: false // We will handle our own UI or add it to a different position if needed
+        zoomControl: false
     });
 
-    // Add Zoom Control at bottom right
-    L.control.zoom({
-        position: 'bottomright'
-    }).addTo(map);
+    // Zoom control – bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-
-    // 2) Dark/Modern Map Tiles (CartoDB Dark Matter)
+    // Dark map tiles (CartoDB Dark Matter)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 20
     }).addTo(map);
 
-
-    // Global variables to keep track of state
-    let geojsonLayer;
-    let markersLayer = L.layerGroup().addTo(map);
-    let currentZoomedCountry = null;
-    let allCities = [];
+    // Layer groups
+    markersLayer = L.layerGroup().addTo(map);
+    routeCityMarkers = L.layerGroup().addTo(map);
 
     const backButton = document.getElementById('back-to-world');
-    const overlay = document.getElementById('welcome-overlay');
 
-    // Route Planner Elements
+    // Route Planner elements
     const openRouteBtn = document.getElementById('open-route-planner-btn');
     const closeRouteBtn = document.getElementById('close-route-planner-btn');
     const routeOverlay = document.getElementById('route-planner-overlay');
     const routeForm = document.getElementById('route-form');
     const routeCitiesSelect = document.getElementById('route-cities-select');
     const routeWarning = document.getElementById('route-budget-warning');
-    let currentPolyline = null;
-    let routeCityMarkers = L.layerGroup().addTo(map);
 
     if (openRouteBtn && closeRouteBtn && routeOverlay) {
-        openRouteBtn.addEventListener('click', () => {
-            routeOverlay.style.display = 'block';
-        });
-        closeRouteBtn.addEventListener('click', () => {
-            routeOverlay.style.display = 'none';
-        });
+        openRouteBtn.addEventListener('click', () => { routeOverlay.style.display = 'block'; });
+        closeRouteBtn.addEventListener('click', () => { routeOverlay.style.display = 'none'; });
     }
 
-    // Fetch GeoJSON Borders
+    // ── Fetch GeoJSON country borders ─────────────────────
     fetch('/data/world.geojson')
         .then(res => res.json())
         .then(data => {
@@ -63,9 +137,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 onEachFeature: onEachFeature
             }).addTo(map);
         })
-        .catch(err => console.error("Could not load world.geojson:", err));
+        .catch(err => console.error('Could not load world.geojson:', err));
 
-    // Fetch Cities Data
+    // ── Fetch cities data ──────────────────────────────────
     fetch('/data/cities.json')
         .then(res => res.json())
         .then(data => {
@@ -82,9 +156,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 });
             }
         })
-        .catch(err => console.error("Could not load cities.json:", err));
+        .catch(err => console.error('Could not load cities.json:', err));
 
-    // Style for the GeoJSON layer (Country borders)
+    // ── GeoJSON style helpers ──────────────────────────────
     function styleFeatures(feature) {
         return {
             fillColor: '#2b2b2b',
@@ -96,10 +170,8 @@ document.addEventListener("DOMContentLoaded", function () {
         };
     }
 
-    // Hover Styles
     function highlightFeature(e) {
-        if (currentZoomedCountry) return; // Don't highlight other countries when zoomed into one
-
+        if (currentZoomedCountry) return;
         const layer = e.target;
         layer.setStyle({
             weight: 2,
@@ -116,23 +188,18 @@ document.addEventListener("DOMContentLoaded", function () {
         geojsonLayer.resetStyle(e.target);
     }
 
-    // Click on Country
+    // ── Country click → zoom + show cities ────────────────
     function zoomToFeature(e) {
         const layer = e.target;
         const countryName = layer.feature.properties.name;
 
-        // Visual State Changes
         currentZoomedCountry = countryName;
         map.fitBounds(layer.getBounds(), { padding: [50, 50] });
 
-        // UI Handling
         backButton.classList.add('visible');
-        overlay.classList.add('hidden');
 
-        // Specific Country Highlight
-        geojsonLayer.eachLayer(function (l) {
-            geojsonLayer.resetStyle(l);
-        });
+        // Reset all country highlights then highlight selected
+        geojsonLayer.eachLayer(l => geojsonLayer.resetStyle(l));
         layer.setStyle({
             weight: 2,
             color: '#0d6efd',
@@ -140,7 +207,6 @@ document.addEventListener("DOMContentLoaded", function () {
             fillColor: '#0d6efd'
         });
 
-        // Show Cities
         showCitiesForCountry(countryName);
     }
 
@@ -151,36 +217,27 @@ document.addEventListener("DOMContentLoaded", function () {
             click: zoomToFeature
         });
 
-        // Add Tooltips with Country Names when hovered
         if (feature.properties && feature.properties.name) {
             layer.bindTooltip(feature.properties.name, {
                 permanent: false,
-                direction: "center",
-                className: "country-tooltip"
+                direction: 'center',
+                className: 'country-tooltip'
             });
         }
     }
 
+    // ── Çatlak Yumurta İkonu ──────────────────────────────
+    const cityIcon = getCrackEggIcon();
 
-    // Custom Leaflet Marker Icon with HTML
-    const customIcon = L.divIcon({
-        className: 'custom-city-marker',
-        html: `<div class="marker-pin"></div><i class="fa-solid fa-location-dot"></i>`,
-        iconSize: [30, 42],
-        iconAnchor: [15, 42]
-    });
-
-
+    // ── Show city markers for a country ───────────────────
     function showCitiesForCountry(countryName) {
-        // Clear previous markers (except route markers)
         markersLayer.clearLayers();
 
-        // Filter cities by the country clicked
         const cities = allCities.filter(c => c.country === countryName);
 
         cities.forEach(city => {
-            const marker = L.marker([city.lat, city.lng], { icon: customIcon })
-                .bindTooltip(city.name, { direction: 'top', offset: [0, -40] })
+            const marker = L.marker([city.lat, city.lng], { icon: cityIcon })
+                .bindTooltip(city.name, { direction: 'top', offset: [0, -54] })
                 .addTo(markersLayer);
 
             marker.on('click', () => {
@@ -189,9 +246,9 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    // Route Planning Logic
+    // ── Route Planning ─────────────────────────────────────
     if (routeForm) {
-        routeForm.addEventListener('submit', (e) => {
+        routeForm.addEventListener('submit', e => {
             e.preventDefault();
 
             const selectedOptions = Array.from(routeCitiesSelect.selectedOptions);
@@ -199,14 +256,11 @@ document.addEventListener("DOMContentLoaded", function () {
             const days = parseInt(document.getElementById('route-days').value) || 1;
 
             if (selectedOptions.length < 2) {
-                alert("Lütfen rota çizmek için en az 2 şehir seçin.");
+                alert('Lütfen rota çizmek için en az 2 şehir seçin.');
                 return;
             }
 
-            // Clear previous route
-            if (currentPolyline) {
-                map.removeLayer(currentPolyline);
-            }
+            if (currentPolyline) map.removeLayer(currentPolyline);
             routeCityMarkers.clearLayers();
 
             let totalEstimatedCost = 0;
@@ -217,25 +271,22 @@ document.addEventListener("DOMContentLoaded", function () {
                 const lng = parseFloat(opt.dataset.lng);
                 latlngs.push([lat, lng]);
 
-                // Draw marker for selected route city
-                const marker = L.marker([lat, lng], { icon: customIcon })
-                    .bindTooltip(opt.textContent, { permanent: true, direction: 'top', offset: [0, -40] })
+                const marker = L.marker([lat, lng], { icon: cityIcon })
+                    .bindTooltip(opt.textContent, { permanent: true, direction: 'top', offset: [0, -54] })
                     .addTo(routeCityMarkers);
 
                 marker.on('click', () => {
                     window.location.href = `/City/Detail/${opt.value}`;
                 });
 
-                // Calculate cost based on BudgetLevel
                 const bLevel = opt.dataset.budgetLevel;
-                let dailyCost = 1500; // Orta
-                if (bLevel.includes("Düşük")) dailyCost = 500;
-                if (bLevel.includes("Yüksek")) dailyCost = 3000;
+                let dailyCost = 1500;
+                if (bLevel.includes('Düşük')) dailyCost = 500;
+                if (bLevel.includes('Yüksek')) dailyCost = 3000;
 
                 totalEstimatedCost += dailyCost * (days / selectedOptions.length);
             });
 
-            // Draw Polyline
             currentPolyline = L.polyline(latlngs, {
                 color: '#38bdf8',
                 weight: 4,
@@ -245,16 +296,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
             map.fitBounds(currentPolyline.getBounds(), { padding: [50, 50] });
 
-            // Budget Check
             if (totalEstimatedCost > userBudget) {
                 routeWarning.style.display = 'block';
-                routeWarning.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Bütçeniz bu rota için biraz kısıtlı. Tahmini maliyet: <b>${totalEstimatedCost.toFixed(0)} ₺</b>, ancak bütçeniz: <b>${userBudget} ₺</b>.`;
+                routeWarning.className = 'alert alert-warning mt-3 mb-0';
+                routeWarning.innerHTML = `<i class="fa-solid fa-triangle-exclamation me-1"></i> Bütçeniz bu rota için biraz kısıtlı. Tahmini maliyet: <b>${totalEstimatedCost.toFixed(0)} ₺</b>, bütçeniz: <b>${userBudget} ₺</b>.`;
             } else {
                 routeWarning.style.display = 'block';
                 routeWarning.className = 'alert alert-success mt-3 mb-0';
-                routeWarning.innerHTML = `<i class="fa-solid fa-check me-1"></i> Harika! Bütçeniz bu rota için gayet yeterli. Tahmini maliyet: <b>${totalEstimatedCost.toFixed(0)} ₺</b>.`;
-
-                // Save Route to DB... (Will implement in next step)
+                routeWarning.innerHTML = `<i class="fa-solid fa-check me-1"></i> Harika! Bütçeniz yeterli. Tahmini maliyet: <b>${totalEstimatedCost.toFixed(0)} ₺</b>.`;
                 saveRouteToDatabase(selectedOptions.map(o => o.value), userBudget, days);
             }
         });
@@ -263,7 +312,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function saveRouteToDatabase(cityIds, budget, days) {
         const routeType = document.getElementById('route-type').value;
         const payload = {
-            RouteName: "Kişisel Rota (" + new Date().toLocaleDateString('tr-TR') + ")",
+            RouteName: 'Kişisel Rota (' + new Date().toLocaleDateString('tr-TR') + ')',
             TotalBudget: budget,
             Days: days,
             TripType: routeType,
@@ -272,47 +321,57 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch('/Route/SaveRoute', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
             .then(res => {
-                if (!res.ok) throw new Error("Giriş yapmamış olabilirsiniz veya bir hata oluştu.");
+                if (!res.ok) throw new Error('Giriş yapmamış olabilirsiniz veya bir hata oluştu.');
                 return res.json();
             })
             .then(data => {
                 if (data.success) {
-                    // Change button to success state briefly
                     const sBtn = document.querySelector('#route-form button[type="submit"]');
                     const origHtml = sBtn.innerHTML;
                     sBtn.innerHTML = '<i class="fa-solid fa-check me-2"></i>Rota Kaydedildi!';
-                    sBtn.classList.remove('btn-info');
-                    sBtn.classList.add('btn-success');
+                    sBtn.classList.replace('btn-info', 'btn-success');
                     setTimeout(() => {
                         sBtn.innerHTML = origHtml;
-                        sBtn.classList.remove('btn-success');
-                        sBtn.classList.add('btn-info');
+                        sBtn.classList.replace('btn-success', 'btn-info');
                     }, 3000);
                 }
             })
             .catch(err => {
                 console.error(err);
-                alert("Rota kaydedilemedi: İstek hatası. Lütfen giriş yaptığınızdan emin olun.");
+                alert('Rota kaydedilemedi. Lütfen giriş yaptığınızdan emin olun.');
             });
     }
 
-
-
-    // Reset Map View
-    backButton.addEventListener('click', () => {
-        currentZoomedCountry = null;
-        map.setView([30, 0], 2);
-        geojsonLayer.eachLayer(function (l) {
-            geojsonLayer.resetStyle(l);
+    // ── Back to World ──────────────────────────────────────
+    if (backButton) {
+        backButton.addEventListener('click', () => {
+            currentZoomedCountry = null;
+            map.setView([30, 0], 2);
+            geojsonLayer.eachLayer(l => geojsonLayer.resetStyle(l));
+            markersLayer.clearLayers();
+            backButton.classList.remove('visible');
         });
-        markersLayer.clearLayers();
-        backButton.classList.remove('visible');
-    });
+    }
+}
 
+// ── On DOM ready: set initial state ───────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    const hero = document.getElementById('landing-hero');
+    const mapContainer = document.getElementById('map-container');
+
+    // If hero is already hidden (logged-in user), skip landing setup
+    if (hero && hero.style.display !== 'none') {
+        hero.style.display = 'flex';
+        document.body.classList.add('landing-active');
+    }
+
+    // mapContainer is managed by Index.cshtml inline style;
+    // if it's already visible (logged-in auto-start), don't hide it again.
+    if (mapContainer && mapContainer.style.display !== 'block') {
+        mapContainer.style.display = 'none';
+    }
 });

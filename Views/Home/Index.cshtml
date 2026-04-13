@@ -1,6 +1,7 @@
 ﻿@{
-    ViewData["Title"] = "Dünya Haritası";
+    ViewData["Title"] = "Gezi Rehberi - Dünyayı Keşfet";
     ViewData["FullWidth"] = true;
+    bool isLoggedIn = User.Identity?.IsAuthenticated == true;
 }
 
 @section HeadScripts {
@@ -8,12 +9,188 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 }
 
-<div id="map-container">
-    <!-- Overlay Welcome Text -->
-    <div id="welcome-overlay" class="map-welcome-overlay">
-        <h1>Keşfetmeye Hazır Mısın?</h1>
-        <p class="mb-0 text-light">Dünya üzerinde bir ülkeye tıklayarak popüler şehirleri ve mekanları gör.</p>
+<!-- ===================== LANDING PAGE HERO ===================== -->
+<div id="landing-hero" @(isLoggedIn ? "style=\"display:none;\"" : "")>
+    <div class="hero-overlay"></div>
+
+    <!-- Floating Particles -->
+    <div class="hero-particles">
+        <span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
     </div>
+
+    <!-- Hero Content -->
+    <div class="hero-content">
+        <!-- Mascot + Title Row -->
+        <div class="hero-title-row">
+            <div class="hero-mascot">
+                <!-- Backpacker Chicken SVG Icon -->
+                <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" class="mascot-svg">
+                    <!-- Body -->
+                    <ellipse cx="60" cy="72" rx="22" ry="26" fill="#f59e0b"/>
+                    <!-- Head -->
+                    <circle cx="60" cy="38" r="18" fill="#fbbf24"/>
+                    <!-- Eye -->
+                    <circle cx="65" cy="34" r="3.5" fill="#1e293b"/>
+                    <circle cx="66.2" cy="33" r="1" fill="white"/>
+                    <!-- Beak -->
+                    <polygon points="72,38 80,36 72,42" fill="#f97316"/>
+                    <!-- Comb/Crest -->
+                    <ellipse cx="50" cy="24" rx="5" ry="8" fill="#ef4444" transform="rotate(-15,50,24)"/>
+                    <ellipse cx="58" cy="20" rx="5" ry="9" fill="#ef4444" transform="rotate(-5,58,20)"/>
+                    <ellipse cx="66" cy="22" rx="4" ry="7" fill="#ef4444" transform="rotate(10,66,22)"/>
+                    <!-- Backpack -->
+                    <rect x="38" y="55" width="16" height="22" rx="4" fill="#3b82f6"/>
+                    <rect x="40" y="57" width="12" height="8" rx="2" fill="#60a5fa"/>
+                    <line x1="46" y1="77" x2="46" y2="90" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+                    <!-- Straps -->
+                    <path d="M54 58 Q50 65 54 75" stroke="#1d4ed8" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <!-- Wings -->
+                    <ellipse cx="38" cy="70" rx="10" ry="16" fill="#fbbf24" transform="rotate(-20,38,70)"/>
+                    <ellipse cx="82" cy="70" rx="10" ry="16" fill="#fbbf24" transform="rotate(20,82,70)"/>
+                    <!-- Feet -->
+                    <line x1="50" y1="96" x2="44" y2="108" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="70" y1="96" x2="76" y2="108" stroke="#f97316" stroke-width="4" stroke-linecap="round"/>
+                    <line x1="40" y1="108" x2="36" y2="112" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="44" y1="108" x2="44" y2="114" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="48" y1="108" x2="52" y2="112" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="72" y1="108" x2="68" y2="112" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="76" y1="108" x2="76" y2="114" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <line x1="80" y1="108" x2="84" y2="112" stroke="#f97316" stroke-width="3" stroke-linecap="round"/>
+                    <!-- Map in wing -->
+                    <rect x="78" y="62" width="12" height="10" rx="2" fill="#fff" opacity="0.9"/>
+                    <line x1="80" y1="65" x2="88" y2="65" stroke="#3b82f6" stroke-width="1.5"/>
+                    <line x1="80" y1="68" x2="85" y2="68" stroke="#ef4444" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <div class="hero-title-text">
+                <h1 class="hero-main-title">Gezi Rehberi</h1>
+                <p class="hero-tagline">Dünyayı keşfet · Rotanı planla · Anılarını yaşa</p>
+            </div>
+        </div>
+
+        
+        
+        <!-- CTA Buttons -->
+        <div class="hero-cta-group">
+            <!-- "Rota Oluşturalım" → opens the rota modal -->
+            <button id="btn-start-route" class="hero-btn hero-btn-primary" data-bs-toggle="modal" data-bs-target="#rotaModal">
+                <i class="fa-solid fa-route"></i>
+                Rota Oluşturalım
+            </button>
+
+            @if (isLoggedIn)
+            {
+                <button class="hero-btn hero-btn-outline" onclick="activateMap()">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    Haritayı Aç
+                </button>
+            }
+            else
+            {
+                <a asp-area="Identity" asp-page="/Account/Login" class="hero-btn hero-btn-outline" id="btn-login">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    Giriş Yap
+                </a>
+            }
+        </div>
+
+        <!-- Stats Row -->
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Ülke</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <span class="stat-number">200+</span>
+                <span class="stat-label">Şehir</span>
+            </div>
+            <div class="hero-stat-divider"></div>
+            <div class="hero-stat">
+                <span class="stat-number">1000+</span>
+                <span class="stat-label">Gezilecek Yer</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="hero-scroll-hint" onclick="activateMap()">
+        <span>Haritayı Keşfet</span>
+        <i class="fa-solid fa-chevron-down bounce-anim"></i>
+    </div>
+</div>
+
+<!-- ===================== ROTA MODAL ===================== -->
+<div class="modal fade" id="rotaModal" tabindex="-1" aria-labelledby="rotaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rota-modal-content">
+            <!-- Header -->
+            <div class="modal-header rota-modal-header">
+                <div class="rota-modal-title-wrap">
+                    <i class="fa-solid fa-route rota-modal-icon"></i>
+                    <h5 class="modal-title" id="rotaModalLabel">Rotanı Planla</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Kapat"></button>
+            </div>
+            <!-- Body -->
+            <div class="modal-body rota-modal-body">
+                <form id="rota-planner-form">
+                    <!-- Şehirler -->
+                    <div class="rota-field-group mb-3">
+                        <label class="rota-label"><i class="fa-solid fa-city me-2 text-sky-400"></i>Şehir / Destinasyon</label>
+                        <input type="text" id="rota-destination" class="rota-input" placeholder="Örn: Paris, İstanbul, Tokyo...">
+                    </div>
+
+                    <!-- Tarih Aralığı -->
+                    <div class="rota-field-group mb-3">
+                        <label class="rota-label"><i class="fa-solid fa-calendar-days me-2 text-sky-400"></i>Tarih Aralığı</label>
+                        <div class="rota-date-row">
+                            <input type="date" id="rota-date-start" class="rota-input" placeholder="Başlangıç">
+                            <span class="rota-date-sep"><i class="fa-solid fa-arrow-right"></i></span>
+                            <input type="date" id="rota-date-end" class="rota-input" placeholder="Bitiş">
+                        </div>
+                    </div>
+
+                    <!-- Bütçe -->
+                    <div class="rota-field-group mb-3">
+                        <label class="rota-label"><i class="fa-solid fa-wallet me-2 text-sky-400"></i>Maksimum Bütçe (₺)</label>
+                        <div class="rota-budget-wrap">
+                            <i class="fa-solid fa-turkish-lira-sign rota-budget-icon"></i>
+                            <input type="number" id="rota-budget" class="rota-input rota-budget-input" placeholder="Örn: 20 000" min="0">
+                        </div>
+                    </div>
+
+                    <!-- Seyahat Tipi -->
+                    <div class="rota-field-group mb-4">
+                        <label class="rota-label"><i class="fa-solid fa-suitcase-rolling me-2 text-sky-400"></i>Seyahat Tipi</label>
+                        <div class="rota-type-pills" id="rota-type-pills">
+                            <button type="button" class="rota-type-pill" data-value="Düşük"><i class="fa-solid fa-person-walking-luggage"></i> Ekonomik</button>
+                            <button type="button" class="rota-type-pill active" data-value="Orta"><i class="fa-solid fa-plane"></i> Standart</button>
+                            <button type="button" class="rota-type-pill" data-value="Yüksek"><i class="fa-solid fa-champagne-glasses"></i> Lüks</button>
+                        </div>
+                        <input type="hidden" id="rota-type-hidden" value="Orta">
+                    </div>
+
+                    <!-- Butonlar -->
+                    <div class="rota-modal-actions">
+                        <button type="button" class="rota-btn-secondary" data-bs-dismiss="modal">İptal</button>
+                        <button type="button" class="rota-btn-primary" id="rota-draw-btn">
+                            <i class="fa-solid fa-map-location-dot me-2"></i>Haritayı Aç & Rota Çiz
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== MAP SECTION (hidden initially) ===================== -->
+<div id="map-container" style="display:none;">
+    <!-- Back to Landing button -->
+    <button id="back-to-landing" onclick="deactivateMap()">
+        <i class="fa-solid fa-house me-2"></i>Ana Sayfa
+    </button>
 
     <!-- Back to World Button -->
     <button id="back-to-world">
@@ -24,7 +201,7 @@
     <div id="world-map"></div>
 
     <!-- Authentication check for Route Planner -->
-    @if (User.Identity?.IsAuthenticated == true)
+    @if (isLoggedIn)
     {
         <!-- Floating Action Button for Route Planner -->
         <button id="open-route-planner-btn" class="btn btn-primary rounded-pill shadow-lg shadow" style="position: absolute; top: 20px; right: 20px; z-index: 1000; padding: 10px 20px; font-weight: bold;">
@@ -41,7 +218,6 @@
                 <form id="route-form">
                     <div class="mb-3">
                         <label class="form-label text-light">Şehir Seçimi (Sırasıyla)</label>
-                        <!-- For simplicity in UI, we'll use a multiple select. Realistically Select2 is better but requires CDN. We'll use a basic multiple select. -->
                         <select id="route-cities-select" class="form-select bg-dark text-white border-secondary" multiple size="4" required>
                             <!-- Options injected dynamically from map.js -->
                         </select>
@@ -52,7 +228,7 @@
                         <label class="form-label text-light">Maksimum Bütçe (₺)</label>
                         <input type="number" id="route-budget" class="form-control bg-dark text-white border-secondary" placeholder="Örn: 20000" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label text-light">Gezilecek Gün Sayısı</label>
                         <input type="number" id="route-days" class="form-control bg-dark text-white border-secondary" placeholder="Örn: 7" value="7" min="1" required>
@@ -69,10 +245,10 @@
 
                     <button type="submit" class="btn btn-info w-100 fw-bold"><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Rotayı Çiz</button>
                 </form>
-                
+
                 <!-- Budget Warning Message -->
                 <div id="route-budget-warning" class="alert alert-warning mt-3 mb-0" style="display: none; font-size: 0.85rem;">
-                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Bütçeniz bu rota için biraz kısıtlı görünüyor, daha ekonomik bir seyahat tipi seçebilir veya şehirleri azaltabilirsiniz.
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Bütçeniz bu rota için biraz kısıtlı görünüyor.
                 </div>
             </div>
         </div>
@@ -95,4 +271,64 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="~/js/map.js" asp-append-version="true"></script>
+    <script>
+        // ── Rota Modal Logic ────────────────────────────────
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // Seyahat tipi pill seçimi
+            var pills = document.querySelectorAll('.rota-type-pill');
+            var hiddenInput = document.getElementById('rota-type-hidden');
+            pills.forEach(function(pill) {
+                pill.addEventListener('click', function () {
+                    pills.forEach(function(p) { p.classList.remove('active'); });
+                    this.classList.add('active');
+                    if (hiddenInput) hiddenInput.value = this.dataset.value;
+                });
+            });
+
+            // "Haritayı Aç & Rota Çiz" butonu
+            var drawBtn = document.getElementById('rota-draw-btn');
+            if (drawBtn) {
+                drawBtn.addEventListener('click', function () {
+                    // Modal'ı kapat
+                    var modalEl = document.getElementById('rotaModal');
+                    if (modalEl) {
+                        var bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        bsModal.hide();
+                    }
+
+                    // Haritayı aç
+                    if (typeof window.activateMap === 'function') {
+                        window.activateMap();
+                    }
+
+                    // Harita açıldıktan sonra rota planlayıcı panelini aç
+                    setTimeout(function () {
+                        var budget = document.getElementById('rota-budget') ? document.getElementById('rota-budget').value : '';
+                        var type   = document.getElementById('rota-type-hidden') ? document.getElementById('rota-type-hidden').value : '';
+
+                        if (document.getElementById('route-budget') && budget) {
+                            document.getElementById('route-budget').value = budget;
+                        }
+                        if (document.getElementById('route-type') && type) {
+                            document.getElementById('route-type').value = type;
+                        }
+
+                        var routeOverlay = document.getElementById('route-planner-overlay');
+                        if (routeOverlay) routeOverlay.style.display = 'block';
+                    }, 800);
+                });
+            }
+
+            @if (isLoggedIn)
+            {
+                <text>
+                // Kullanıcı giriş yapmış → direkt haritayı aç
+                if (typeof window.activateMap === 'function') {
+                    window.activateMap();
+                }
+                </text>
+            }
+        });
+    </script>
 }

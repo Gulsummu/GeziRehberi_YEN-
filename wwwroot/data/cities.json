@@ -17,17 +17,23 @@
       {
         "name": "Ayasofya",
         "rating": 5.0,
-        "type": "Tarihi"
+        "type": "Tarihi",
+        "imageUrl": "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Topkapı Sarayı",
         "rating": 4.8,
-        "type": "Müze"
+        "type": "Müze",
+        "imageUrl": "https://images.unsplash.com/photo-1621255877861-f0932598be93?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Galata Kulesi",
         "rating": 4.7,
-        "type": "Tarihi"
+        "type": "Tarihi",
+        "imageUrl": "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       }
     ]
   },
@@ -49,17 +55,23 @@
       {
         "name": "Eyfel Kulesi",
         "rating": 4.7,
-        "type": "Anıt"
+        "type": "Anıt",
+        "imageUrl": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Louvre Müzesi",
         "rating": 4.9,
-        "type": "Müze"
+        "type": "Müze",
+        "imageUrl": "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Yüksek"
       },
       {
         "name": "Notre Dame Katedrali",
         "rating": 4.8,
-        "type": "Tarihi"
+        "type": "Tarihi",
+        "imageUrl": "https://images.unsplash.com/photo-1478147427282-58a87a120781?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       }
     ]
   },
@@ -81,17 +93,23 @@
       {
         "name": "Senso-ji Tapınağı",
         "rating": 4.8,
-        "type": "Tapınak"
+        "type": "Tapınak",
+        "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       },
       {
         "name": "Tokyo Kulesi",
         "rating": 4.6,
-        "type": "Gözlem Kulesi"
+        "type": "Gözlem Kulesi",
+        "imageUrl": "https://images.unsplash.com/photo-1513407030348-c983a97b98d8?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Meiji Tapınağı",
         "rating": 4.8,
-        "type": "Tapınak"
+        "type": "Tapınak",
+        "imageUrl": "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       }
     ]
   },
@@ -113,17 +131,23 @@
       {
         "name": "Kolezyum",
         "rating": 4.9,
-        "type": "Tarihi"
+        "type": "Tarihi",
+        "imageUrl": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Yüksek"
       },
       {
         "name": "Panteon",
         "rating": 4.8,
-        "type": "Tarihi"
+        "type": "Tarihi",
+        "imageUrl": "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Aşk Çeşmesi",
         "rating": 4.7,
-        "type": "Anıt"
+        "type": "Anıt",
+        "imageUrl": "https://images.unsplash.com/photo-1529260839312-41777c0827b4?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       }
     ]
   },
@@ -145,17 +169,23 @@
       {
         "name": "Özgürlük Heykeli",
         "rating": 4.8,
-        "type": "Anıt"
+        "type": "Anıt",
+        "imageUrl": "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Orta"
       },
       {
         "name": "Central Park",
         "rating": 4.9,
-        "type": "Doğa/Park"
+        "type": "Doğa/Park",
+        "imageUrl": "https://images.unsplash.com/photo-1532960401447-7ee056656173?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       },
       {
         "name": "Times Meydanı",
         "rating": 4.7,
-        "type": "Meydan"
+        "type": "Meydan",
+        "imageUrl": "https://images.unsplash.com/photo-1534430480872-3498386e7a56?auto=format&fit=crop&w=400&q=80",
+        "budgetLevel": "Düşük"
       }
     ]
   }
